@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Scanner;
 
-enum QuizRoles{
+enum QuizRoles {
     QUESTIONS("questions"),
     ANSWER("answers");
 
@@ -23,36 +23,36 @@ public class QuizMaker {
     private final ArrayList<String> questions = new ArrayList<>();
     private final ArrayList<String> answers = new ArrayList<>();
     private final Scanner input = new Scanner(System.in);
-    private int count = 0;
+    private int numberOfCorrectAnswers = 0;
 
-    public void quiz() {
-        retrieveQuizData(QuizRoles.QUESTIONS);
-        retrieveQuizData(QuizRoles.ANSWER);
-        quizGame();
+    public void initializeQuiz() {
+        retrieveQuestions();
+        retrieveAnswers();
+        startQuiz();
     }
 
-    private void quizGame() {
-        for (int i = 0; i < 10; i++) {
+    private void startQuiz() {
+        for ( int i = 0; i < 10; i++ ) {
             int randomIndex = (int) (Math.random() * questions.size());
             getQuestion(randomIndex);
-            checkInputMatch(randomIndex);
+            getAnswers(randomIndex);
         }
-        questionGrading();
+        getQuizResults();
     }
 
-    private void questionGrading() {
-        if (count < 5) {
-            System.out.println("You got " + count + "0% answered. Better luck next time.");
+    private void getQuizResults() {
+        if ( numberOfCorrectAnswers < 5 ) {
+            System.out.println("You got " + numberOfCorrectAnswers + "0% answered. Better luck next time.");
         } else {
-            System.out.println("You got " + count + "0% answered. Good Job buddy.");
+            System.out.println("You got " + numberOfCorrectAnswers + "0% answered. Good Job buddy.");
         }
     }
 
-    private void checkInputMatch(int randomQuestionIndex) {
+    private void getAnswers(int randomQuestionIndex) {
         String answer = input.nextLine().toLowerCase();
-        if (answer.equals(getAnswer(randomQuestionIndex))) {
+        if ( answer.equals(getAnswer(randomQuestionIndex)) ) {
             System.out.println("Correct answer");
-            count++;
+            numberOfCorrectAnswers++;
         }
     }
 
@@ -64,18 +64,24 @@ public class QuizMaker {
         return answers.get(questionIndex);
     }
 
-    private void retrieveQuizData(QuizRoles location) {
+    private void retrieveQuestions() {
         try {
-            BufferedReader bufferedReader = getBufferedReader(location.getRole());
-            if (location.equals(QuizRoles.QUESTIONS)) {
-                addQuizValues(bufferedReader,questions);
-            } else {
-                addQuizValues(bufferedReader,answers);
-            }
-        } catch (IOException e) {
+            BufferedReader bufferedReader = getBufferedReader(QuizRoles.QUESTIONS.getRole());
+            addQuizValues(bufferedReader, questions);
+        } catch ( IOException e ) {
             throw new FileSystemNotFoundException("The file could not be found, check the file or adjust the location");
         }
     }
+
+    private void retrieveAnswers() {
+        try {
+            BufferedReader bufferedReader = getBufferedReader(QuizRoles.ANSWER.getRole());
+            addQuizValues(bufferedReader, answers);
+        } catch ( IOException e ) {
+            throw new FileSystemNotFoundException("The file could not be found, check the file or adjust the location");
+        }
+    }
+
 
     private BufferedReader getBufferedReader(String location) throws FileNotFoundException {
         File file = new File("src/main/resources/" + location + ".txt");
@@ -86,7 +92,7 @@ public class QuizMaker {
     private void addQuizValues(BufferedReader bufferedReader, ArrayList<String> arrayList) throws IOException {
         String line;
         int MAX_LINE = 100;
-        for (int i = 0; i < MAX_LINE; i++) {
+        for ( int i = 0; i < MAX_LINE; i++ ) {
             line = bufferedReader.readLine().toLowerCase(Locale.ROOT);
             arrayList.add(line);
         }
